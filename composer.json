@@ -1,0 +1,20 @@
+{
+    "name": "ethsam/symfony-dropzone",
+    "description": "Symfony Form Type",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Ethsam\\SymfonyDropzone\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Samuel Etheve",
+            "email": "etheve.samuel@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/dependency-injection": ">4.3"
+    }
+}

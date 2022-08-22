@@ -1,0 +1,157 @@
+{% block dropzone_widget %}
+    {{ block('form_widget') }}
+    <script>
+        (function () {
+            let dropzoneId = '{{ id|default(0) }}_dropzone';
+            let form_widget = document.getElementById(dropzoneId);
+            let dropzoneElement = form_widget.parentElement;
+            dropzoneElement.classList.add('dropzone');
+
+            function initPrototype(id) {
+                {% if multiple %}
+                element = document.createElement('input');
+                element.type = 'hidden';
+                element.name = '{{ full_name }}[dropzone][]';
+                element.value = id;
+                dropzoneElement.append(element);
+                {% else %}
+                element = document.createElement('option');
+                element.value = id;
+                element.text = id;
+                element.selected = true;
+                form_widget.append(element);
+                {% endif %}
+            }
+
+            options = {};
+            {% if maxFiles %}
+            options.maxFiles = {{ maxFiles }};
+            {% endif %}
+            {% if uploadHandlerMethod %}
+            options.method = '{{ uploadHandlerMethod }}';
+            {% endif %}
+            {% if withCredentials %}
+            options.withCredentials = {{ withCredentials }};
+            {% endif %}
+            {% if thumbnailWidth %}
+            options.thumbnailWidth = {{ thumbnailWidth }};
+            {% endif %}
+            {% if thumbnailHeight %}
+            options.thumbnailHeight = {{ thumbnailHeight }};
+            {% endif %}
+            {% if thumbnailMethod %}
+            options.thumbnailMethod = '{{ thumbnailMethod }}';
+            {% endif %}
+            {% if resizeWidth %}
+            options.resizeWidth = {{ resizeWidth }};
+            {% endif %}
+            {% if resizeHeight %}
+            options.resizeHeight = {{ resizeHeight }};
+            {% endif %}
+            {% if resizeMimeType %}
+            options.resizeMimeType = {{ resizeMimeType }};
+            {% endif %}
+            {% if resizeMethod %}
+            options.resizeMethod = '{{ resizeMethod }}';
+            {% endif %}
+            {% if filesizeBase %}
+            options.filesizeBase = {{ filesizeBase }};
+            {% endif %}
+            {% if headers is iterable %}
+            header_object = {};
+            {% for key,value in headers %}
+            var key = '{{ key }}';
+            header_object[key] = '{{ value }}';
+            {% endfor %}
+            options.headers = header_object;
+            {% endif %}
+            {% if ignoreHiddenFiles %}
+            options.ignoreHiddenFiles = {{ ignoreHiddenFiles }};
+            {% endif %}
+            {% if acceptedFiles %}
+            options.acceptedFiles = '{{ acceptedFiles }}';
+            {% endif %}
+            {% if autoProcessQueue %}
+            options.autoProcessQueue = {{ autoProcessQueue }};
+            {% endif %}
+            {% if autoQueue %}
+            options.autoQueue = {{ autoQueue }};
+            {% endif %}
+            {% if addRemoveLinks %}
+            options.addRemoveLinks = {{ addRemoveLinks }};
+            {% endif %}
+            {% if previewsContainer %}
+            options.previewsContainer = '{{ previewsContainer }}';
+            {% endif %}
+            let myDropzone = new Dropzone(dropzoneElement, {
+                url: '{{ path(uploadHandler) }}',
+                ...options,
+                init: function () {
+                    var myDropzone = this;
+                    {% for file in files %}
+                    src = '{{ attribute(file, choice_src) }}';
+                    var mockFile = {
+                        id: '{{ file.id }}',
+                        name: '{{ file.filename }}',
+                        status: Dropzone.ADDED,
+                        url: src
+                    };
+                    {% if  file.size is defined %}
+                    mockFile.size = '{{ file.size }}';
+                    {% endif %}
+                    {% if  file.mimetype is defined %}
+                    mockFile.type = '{{ file.mimetype }}';
+                    {% endif %}
+                    myDropzone.emit("addedfile", mockFile);
+                    myDropzone.emit("thumbnail", mockFile, src);
+                    myDropzone.emit("complete", mockFile);
+                    myDropzone.files.push(mockFile);
+                    initPrototype('{{ file.id }}');
+                    {% endfor %}
+
+                    this.on('success', function (file, result) {
+                        if (result.id) {
+                            file.id = result.id;
+                            initPrototype(result.id);
+                        }
+                    });
+                },
+                sending: function (file, xhr, formData) {
+                    {% if headers is iterable %}
+                    {% for key,value in formData %}
+                    formData.append('{{ key }}', '{{ value }}');
+                    {% endfor %}
+                    {% endif %}
+                },
+                removedfile: function (file) {
+                    if (file.id) {
+                        const uri = '{{ path(removeHandler,{'id': 'file_id' }) }}';
+                        const options_remove = {};
+                        {% if removeHandlerMethod %}
+                        options_remove.method = '{{ removeHandlerMethod }}';
+                        {% endif %}
+                        if (options.headers) {
+                            options_remove.headers = options.headers;
+                        }
+                        fetch(uri.replace("file_id", file.id), options_remove)
+                        {% if not multiple %}
+                        for (var i=0; i<form_widget.length; i++) {
+                            if (form_widget.options[i].value == file.id){
+                                form_widget.remove(i);
+
+                            }
+                        }
+                        {% if required == false %}
+                        form_widget.value = '';
+                        {% endif %}
+                        {% endif %}
+                    }
+                    file.previewElement.remove();
+
+
+                }
+            });
+        })();
+    </script>
+
+{% endblock %}
