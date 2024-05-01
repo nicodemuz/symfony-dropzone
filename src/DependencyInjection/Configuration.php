@@ -10,7 +10,7 @@ class Configuration implements ConfigurationInterface
 
 
 
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('symfony-dropzone');
         return $treeBuilder;
