@@ -18,12 +18,12 @@ class DropzoneTransformer implements DataTransformerInterface
         $this->options = $options;
     }
 
-    public function transform($value)
+    public function transform($value): mixed
     {
-
+        return $value;
     }
 
-    public function reverseTransform($value)
+    public function reverseTransform($value): mixed
     {
 
         if(!isset($value['dropzone'])){
