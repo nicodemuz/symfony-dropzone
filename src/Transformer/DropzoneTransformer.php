@@ -8,9 +8,8 @@ use Symfony\Component\Form\Exception\TransformationFailedException;
 
 class DropzoneTransformer implements DataTransformerInterface
 {
-
-
-    private $entityManager;
+    private EntityManagerInterface $entityManager;
+    private array $options;
 
     public function __construct(EntityManagerInterface $entityManager, array $options)
     {
