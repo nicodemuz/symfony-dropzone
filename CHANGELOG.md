@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - `formDataRaw` option to append unquoted JavaScript expressions to the upload FormData
+- `maxFilesize` option to set Dropzone.js client-side file size limit (MiB)
 
 ## [2.0.0] - 2026-04-25
 
